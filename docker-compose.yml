@@ -1,0 +1,25 @@
+name: taiga-gitlab
+
+x-base: &base
+  read_only: true
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  webhook:
+    <<: *base
+    build: .
+    container_name: taiga-gitlab
+    env_file: .env
+    ports:
+      - "${TG_SERVER_PORT:-8000}:${TG_SERVER_PORT:-8000}"
+    environment:
+      - TZ=Europe/Moscow
