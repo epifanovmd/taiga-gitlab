@@ -43,10 +43,10 @@ export const matchPipelineEvent = (
     return null;
   }
 
-  if (CONFIG.gitlab.matchUser.includes(user.name)) {
-    console.log(
-      `⏭️  Пропущено: user "${user.name}" !== "${CONFIG.gitlab.matchUser}"`,
-    );
+  const allowedUsers = CONFIG.gitlab.matchUser.split(',').map((s) => s.trim());
+
+  if (allowedUsers.includes(user.name)) {
+    console.log(`⏭️  Пропущено: user "${user.name}" !== "${allowedUsers.join(',')}"`);
     return null;
   }
 
