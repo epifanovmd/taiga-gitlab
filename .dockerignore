@@ -1,11 +1,12 @@
-node_modules
-dist
+__pycache__/
+*.pyc
 .git
 .gitignore
+.env
 .vscode
 .idea
 *.md
 .DS_Store
-npm-debug.log*
-.eslintrc*
-.prettierrc*
+node_modules
+dist
+scripts

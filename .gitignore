@@ -1,16 +1,28 @@
-/tmp
-/out-tsc
-/dist
+# ── Python ────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+*.egg
+
+# ── Virtual environments ──────────────────────────────────────────
+.venv
+venv/
+
+# ── Secrets ───────────────────────────────────────────────────────
 .env
 .env.local
 
-/node_modules
+# ── Node.js (legacy — cleanup completed) ─────────────────────────
+node_modules/
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-/.pnp
-.pnp.js
 
+# ── IDE / OS ──────────────────────────────────────────────────────
 .vscode/*
 .idea
 .DS_Store
+
+# ── Temp / builds ────────────────────────────────────────────────
+/tmp
+/out-tsc

@@ -5,7 +5,7 @@ $(eval $(HOST):;@:)
 -include .env
 export
 
-.PHONY: build up down logs ps deploy dev start lint lint-fix format format-fix typecheck build-ts clean-env clean help
+.PHONY: build up down logs ps deploy dev start lint lint-fix format format-fix clean-env clean help
 
 # --- Docker ---
 build:
@@ -30,29 +30,27 @@ deploy:
 
 # --- Локально (env подхватывается через -include .env + export) ---
 dev:
-	npx tsx watch src/index.ts
+	python -m src
 
 start:
-	npx tsx src/index.ts
+	python -m src
 
 # --- Контроль качества ---
 lint:
-	npx eslint src/
+	@command -v ruff >/dev/null 2>&1 || { echo "Установите ruff: pip install ruff"; exit 1; }
+	ruff check src/
 
 lint-fix:
-	npx eslint src/ --fix
+	@command -v ruff >/dev/null 2>&1 || { echo "Установите ruff: pip install ruff"; exit 1; }
+	ruff check src/ --fix
 
 format:
-	npx prettier --check src/
+	@command -v ruff >/dev/null 2>&1 || { echo "Установите ruff: pip install ruff"; exit 1; }
+	ruff format src/ --check
 
 format-fix:
-	npx prettier --write src/
-
-typecheck:
-	npx tsc --noEmit
-
-build-ts:
-	npx tsc
+	@command -v ruff >/dev/null 2>&1 || { echo "Установите ruff: pip install ruff"; exit 1; }
+	ruff format src/
 
 # --- Очистка ---
 clean-env:
@@ -61,7 +59,8 @@ clean-env:
 
 clean:
 	docker compose down -v 2>/dev/null; true
-	rm -rf dist/ node_modules/ 2>/dev/null; true
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; true
+	rm -rf .venv/ 2>/dev/null; true
 
 # --- Справка ---
 help:
@@ -78,14 +77,14 @@ help:
 	@echo "    make deploy <host>  Залить и запустить на VPS"
 	@echo ""
 	@echo "  Локально:"
-	@echo "    make dev            Запустить с hot-reload"
+	@echo "    make dev            Запустить"
 	@echo "    make start          Запустить"
 	@echo ""
-	@echo "  Качество:"
-	@echo "    make lint           Проверить ESLint"
-	@echo "    make format         Проверить Prettier"
-	@echo "    make typecheck      Проверить TypeScript"
-	@echo "    make build-ts       Собрать JS"
+	@echo "  Качество (требуется ruff):"
+	@echo "    make lint           Проверить lint"
+	@echo "    make format         Проверить форматирование"
+	@echo "    make lint-fix       Исправить lint-ошибки"
+	@echo "    make format-fix     Отформатировать код"
 	@echo ""
 	@echo "  Обслуживание:"
 	@echo "    make clean          Очистить всё"

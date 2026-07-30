@@ -1,18 +1,40 @@
-FROM node:22-alpine AS builder
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
-COPY tsconfig.json ./
-COPY src/ ./src/
-RUN npm run build
+# =============================================================================
+# Этап 1: Сборка зависимостей (builder)
+# =============================================================================
+FROM python:3.13-alpine AS builder
 
-FROM node:22-alpine
 WORKDIR /app
-ENV NODE_ENV=production
+
+# Копируем только requirements — используем кэш слоёв
+COPY requirements.txt ./
+
+# Создаём виртуальное окружение и устанавливаем зависимости
+RUN python -m venv /venv && \
+    /venv/bin/pip install --no-cache-dir -r requirements.txt
+
+# =============================================================================
+# Этап 2: Минимальный рантайм
+# =============================================================================
+FROM python:3.13-alpine
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1
+
+# Создаём непривилегированного пользователя
 RUN addgroup -S app && adduser -S app -G app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY package.json ./
+
+# Переносим виртуальное окружение из builder
+COPY --from=builder /venv /venv
+
+# Переносим исходный код
+COPY src/ ./src/
+
+# Настраиваем PATH на виртуальное окружение
+ENV PATH="/venv/bin:$PATH"
+
 USER app
+
 EXPOSE 8000
-CMD ["node", "dist/index.js"]
+
+CMD ["python", "-m", "src"]
