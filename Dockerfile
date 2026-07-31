@@ -23,6 +23,7 @@ ENV PYTHONUNBUFFERED=1
 
 # Создаём непривилегированного пользователя
 RUN addgroup -S app && adduser -S app -G app
+RUN apk add --no-cache curl
 
 # Переносим виртуальное окружение из builder
 COPY --from=builder /venv /venv
